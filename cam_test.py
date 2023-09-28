@@ -1,5 +1,4 @@
-#PCのカメラ使えるかテスト
-#＞使えそう
+#PCのカメラ使えるかテスト ＞使えそう
 
 import cv2
 import numpy as np
@@ -12,7 +11,7 @@ while(1):
     print(ret) #TorF
 
     cv2.imshow("frame", frame)
-    if cv2.waitKey(1000) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 cv2.destroyAllWindows()
