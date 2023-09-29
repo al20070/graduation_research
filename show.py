@@ -12,13 +12,15 @@ model = unet()
 model.load_weights("./model_v01.hdf5")
 
 #入力動画の読み込み
-#cap = cv2.VideoCapture(0) #PCのカメラ使用
-cap = cv2.VideoCapture('./img/test.mp4') #動画読み込み
+cap = cv2.VideoCapture(0) #PCのカメラ使用
+#cap = cv2.VideoCapture('./img/video.mp4') #動画読み込み
 
 #出力ウィンドウのサイズ変更用
-resize = 2 #画面の縮小倍率
-width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)/resize) #入力動画の縦/resize
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)/resize) #入力動画の横/resize
+resize = 4 #画面の縮小倍率
+width  = cap.get(cv2.CAP_PROP_FRAME_WIDTH) #入力動画の縦
+height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT) #入力動画の横
+width_resize  = int(width/resize) #入力動画の縦/resize
+height_resize = int(height/resize) #入力動画の横/resize
 
 i = 0
 
@@ -28,18 +30,19 @@ while(1):
     ret, frame = cap.read()
     #print(ret) #TorF
 
-    if i%5 == 0: #ノートパソコンだと処理が重すぎるので数フレームごと
+    if i%20 == 0: #ノートパソコンだと処理が重すぎるので数フレームごと
 
         #frameの注視点をU-Netで予測(グレースケール画像)
-        frame = cv2.resize(frame, (width, height))
+        frame = cv2.resize(frame, (width_resize, height_resize))
         testGene = testGenerator2(frame)
         results = model.predict(testGene, 1, verbose=1)
         saveRes = saveResult2(results)
-        gaze = cv2.resize(saveRes, (width, height))
+        gaze = cv2.resize(saveRes, (width_resize, height_resize))
         #print(frame.shape)
         #print(gaze.shape)
 
         #ヒートマップに変換
+        frame = cv2.resize(frame, (width, height))
         heatmap = cv2.applyColorMap(gaze, cv2.COLORMAP_JET)
     
         #画像のサイズ確認
@@ -49,6 +52,9 @@ while(1):
         alpha = 0.5
         blended = cv2.addWeighted(frame, alpha, heatmap, 1 - alpha, 0)
                      
+        #frame = cv2.resize(frame, (width, height))
+        #heatmap = cv2.resize(heatmap, (width, height))
+        
         #結果を表示
         #cv2.imshow("frame", frame)
         #cv2.imshow("gaze", gaze)
