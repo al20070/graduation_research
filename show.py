@@ -13,7 +13,7 @@ model.load_weights("./model_v01.hdf5")
 
 #入力動画の読み込み
 #cap = cv2.VideoCapture(0) #PCのカメラ使用
-cap = cv2.VideoCapture('./img/video.mp4') #動画読み込み
+cap = cv2.VideoCapture('./img/test.mp4') #動画読み込み
 
 #出力ウィンドウのサイズ変更用
 resize = 2 #画面の縮小倍率
