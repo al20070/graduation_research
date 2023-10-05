@@ -9,14 +9,14 @@ from data import *
 
 #U-Netのモデル呼び出し
 model = unet()
-model.load_weights("./model_v01.hdf5")
+model.load_weights("./model_v05-10.hdf5")
 
 #入力動画の読み込み
-cap = cv2.VideoCapture(0) #PCのカメラ使用
-#cap = cv2.VideoCapture('./img/video.mp4') #動画読み込み
+#cap = cv2.VideoCapture(0) #PCのカメラ使用
+cap = cv2.VideoCapture('./img/prac.mp4') #動画読み込み
 
 #出力ウィンドウのサイズ変更用
-resize = 4 #画面の縮小倍率
+resize = 2 #画面の縮小倍率
 width  = cap.get(cv2.CAP_PROP_FRAME_WIDTH) #入力動画の縦
 height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT) #入力動画の横
 width_resize  = int(width/resize) #入力動画の縦/resize
@@ -30,7 +30,7 @@ while(1):
     ret, frame = cap.read()
     #print(ret) #TorF
 
-    if i%20 == 0: #ノートパソコンだと処理が重すぎるので数フレームごと
+    if i%30 == 0: #ノートパソコンだと処理が重すぎるので数フレームごと
 
         #frameの注視点をU-Netで予測(グレースケール画像)
         frame = cv2.resize(frame, (width_resize, height_resize))
@@ -41,8 +41,12 @@ while(1):
         #print(frame.shape)
         #print(gaze.shape)
 
+        #min...max -> 0...255　で見やすく
+        mi, ma = np.min(gaze), np.max(gaze)
+        gaze = (255.0 * (gaze - mi) / (ma-mi)).astype(np.uint8)        
+        gaze = cv2.equalizeHist(gaze) # ヒストグラム平坦化
+
         #ヒートマップに変換
-        frame = cv2.resize(frame, (width, height))
         heatmap = cv2.applyColorMap(gaze, cv2.COLORMAP_JET)
     
         #画像のサイズ確認
@@ -51,9 +55,6 @@ while(1):
         #アルファブレンディング
         alpha = 0.5
         blended = cv2.addWeighted(frame, alpha, heatmap, 1 - alpha, 0)
-                     
-        #frame = cv2.resize(frame, (width, height))
-        #heatmap = cv2.resize(heatmap, (width, height))
         
         #結果を表示
         #cv2.imshow("frame", frame)
